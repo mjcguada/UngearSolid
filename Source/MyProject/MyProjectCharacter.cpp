@@ -36,17 +36,6 @@ AMyProjectCharacter::AMyProjectCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f;
-	CameraBoom->bUsePawnControlRotation = true;
-
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
-
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -75,57 +64,10 @@ void AMyProjectCharacter::Move(const FInputActionValue& Value)
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// route the input
-	DoMove(MovementVector.X, MovementVector.Y);
+	DoMove(MovementVector);
 }
 
-
-void AMyProjectCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	UpdateCameraOffset(DeltaTime);
-}
-
-void AMyProjectCharacter::UpdateCameraOffset(float DeltaTime)
-{
-	if (!CameraBoom) return;
-
-	const FVector PlayerLocation = GetActorLocation();
-	const FVector CameraLocation = FollowCamera->GetComponentLocation();
-
-	// Diferencia entre cámara y personaje en XY (plano horizontal)
-	const FVector2D OffsetXY = FVector2D(PlayerLocation - CameraLocation);
-
-	// Zona segura
-	FVector NewOffset = CameraBoom->TargetOffset;
-
-	// Eje X (adelante/atrás)
-	if (FMath::Abs(OffsetXY.X) > CameraDeadZone.X)
-	{
-		float DeltaX = OffsetXY.X - FMath::Sign(OffsetXY.X) * CameraDeadZone.X;
-		NewOffset.X = FMath::FInterpTo(NewOffset.X, DeltaX, DeltaTime, CameraLagSpeed);
-	}
-	else
-	{
-		NewOffset.X = FMath::FInterpTo(NewOffset.X, 0.0f, DeltaTime, CameraLagSpeed);
-	}
-
-	// Eje Y (izquierda/derecha)
-	if (FMath::Abs(OffsetXY.Y) > CameraDeadZone.Y)
-	{
-		float DeltaY = OffsetXY.Y - FMath::Sign(OffsetXY.Y) * CameraDeadZone.Y;
-		NewOffset.Y = FMath::FInterpTo(NewOffset.Y, DeltaY, DeltaTime, CameraLagSpeed);
-	}
-	else
-	{
-		NewOffset.Y = FMath::FInterpTo(NewOffset.Y, 0.0f, DeltaTime, CameraLagSpeed);
-	}
-
-	// Aplica el nuevo offset al SpringArm
-	CameraBoom->TargetOffset = FVector(NewOffset.X, NewOffset.Y, CameraBoom->TargetOffset.Z);
-}
-
-void AMyProjectCharacter::DoMove(float Right, float Forward)
+void AMyProjectCharacter::DoMove(FVector2D movement)
 {
 	if (GetController() != nullptr)
 	{
@@ -140,7 +82,7 @@ void AMyProjectCharacter::DoMove(float Right, float Forward)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 		// add movement 
-		AddMovementInput(ForwardDirection, Forward);
-		AddMovementInput(RightDirection, Right);
+		AddMovementInput(ForwardDirection, movement.X);
+		AddMovementInput(RightDirection, movement.Y);
 	}
 }

@@ -18,6 +18,15 @@ public:
 	
 	/** Constructor */
 	AMyProjectGameMode();
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
+	TSubclassOf<APawn> PlayerCharacterClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
+	TSubclassOf<AMyCameraActor> CameraActorClass;
 };
 
 
