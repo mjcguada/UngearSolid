@@ -29,7 +29,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyCamera")
+	FVector2D SafeArea = FVector2D(200.f, 100.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyCamera")
+	FVector Offset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyCamera")
+	float PitchOffset = -60.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyCamera")
+	float CameraSpeed = 5.0f;
+
 private:
+	void FollowTarget(float DeltaTime);
+
 	AActor* TargetActor;
+
+	FVector CurrentCameraWorldPosition;
 
 };

@@ -28,14 +28,23 @@ void AMyCameraActor::Tick(float DeltaTime)
 		return;
 	}
 
-	//FollowTarget()
-
+	FollowTarget(DeltaTime);
 }
 
 void AMyCameraActor::SetTarget(AActor* Target)
 {
 	TargetActor = Target;
 
+	FVector startingPosition = TargetActor->GetActorLocation() + Offset;
+
+	SetActorLocation(startingPosition);
+	SetActorRotation(FRotator(PitchOffset, 0.0f, 0.0f));
+
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AMyCameraActor::FollowTarget(float DeltaTime)
+{
+
 }
 
