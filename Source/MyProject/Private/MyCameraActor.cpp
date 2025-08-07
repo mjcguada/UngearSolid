@@ -2,10 +2,16 @@
 
 
 #include "MyCameraActor.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AMyCameraActor::AMyCameraActor()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(RootComponent);
@@ -15,7 +21,7 @@ AMyCameraActor::AMyCameraActor()
 // Called when the game starts or when spawned
 void AMyCameraActor::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
 }
 
 // Called every frame
@@ -23,7 +29,7 @@ void AMyCameraActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!TargetActor) 
+	if (!TargetActor)
 	{
 		return;
 	}
@@ -35,16 +41,35 @@ void AMyCameraActor::SetTarget(AActor* Target)
 {
 	TargetActor = Target;
 
-	FVector startingPosition = TargetActor->GetActorLocation() + Offset;
+	if (TargetActor)
+	{
+		FVector StartingPosition = TargetActor->GetActorLocation();
+		SetActorLocation(StartingPosition);
 
-	SetActorLocation(startingPosition);
-	SetActorRotation(FRotator(PitchOffset, 0.0f, 0.0f));
-
-	PrimaryActorTick.bCanEverTick = true;
+		// Camera Offset and Pitch
+		FollowCamera->SetRelativeRotation(FRotator(PitchOffset, 0.0f, 0.0f));
+		FollowCamera->SetRelativeLocation(CameraOffset);
+	}
 }
 
 void AMyCameraActor::FollowTarget(float DeltaTime)
 {
+	FVector DesiredLocation = GetActorLocation();
+	FVector TargetLocation = TargetActor->GetActorLocation();
 
+	FVector Distance = TargetLocation - GetActorLocation();
+
+	if (FMath::Abs(Distance.X) > SafeArea.X)
+	{
+		DesiredLocation.X = TargetLocation.X;
+	}
+
+	if (FMath::Abs(Distance.Y) > SafeArea.Y)
+	{
+		DesiredLocation.Y = TargetLocation.Y;
+	}
+
+	FVector NewLocation = FMath::VInterpTo(GetActorLocation(), DesiredLocation, DeltaTime, CameraSpeed);
+	SetActorLocation(NewLocation);
 }
 

@@ -75,6 +75,10 @@ void AMyProjectCharacter::DoMove(FVector2D movement)
 		const FRotator Rotation = GetController()->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
+		/*APlayerController* PC = Cast<APlayerController>(GetController());
+		FRotator CameraRotation = PC->PlayerCameraManager->GetCameraRotation();
+		FRotator NewRotation(0.f, CameraRotation.Yaw, 0.f);*/
+
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
@@ -82,7 +86,7 @@ void AMyProjectCharacter::DoMove(FVector2D movement)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 		// add movement 
-		AddMovementInput(ForwardDirection, movement.X);
-		AddMovementInput(RightDirection, movement.Y);
+		AddMovementInput(ForwardDirection, movement.Y);
+		AddMovementInput(RightDirection, movement.X);
 	}
 }
