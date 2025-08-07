@@ -57,16 +57,16 @@ void AMyCameraActor::FollowTarget(float DeltaTime)
 	FVector DesiredLocation = GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 
-	FVector Distance = TargetLocation - GetActorLocation();
+	FVector Offset = TargetLocation - GetActorLocation();
 
-	if (FMath::Abs(Distance.X) > SafeArea.X)
+	if (FMath::Abs(Offset.X) > SafeArea.X)
 	{
-		DesiredLocation.X = TargetLocation.X;
+		DesiredLocation.X += Offset.X - FMath::Sign(Offset.X) * SafeArea.X;
 	}
 
-	if (FMath::Abs(Distance.Y) > SafeArea.Y)
+	if (FMath::Abs(Offset.Y) > SafeArea.Y)
 	{
-		DesiredLocation.Y = TargetLocation.Y;
+		DesiredLocation.Y += Offset.Y - FMath::Sign(Offset.Y) * SafeArea.Y;
 	}
 
 	FVector NewLocation = FMath::VInterpTo(GetActorLocation(), DesiredLocation, DeltaTime, CameraSpeed);
