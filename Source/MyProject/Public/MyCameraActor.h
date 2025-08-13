@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Camera/CameraComponent.h"
 #include "MyCameraActor.generated.h"
+
+class UCameraComponent;
 
 UCLASS()
 class MYPROJECT_API AMyCameraActor : public AActor
@@ -44,5 +45,6 @@ public:
 private:
 	void FollowTarget(float DeltaTime);
 
+	UPROPERTY()
 	AActor* TargetActor;
 };

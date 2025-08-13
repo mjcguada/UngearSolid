@@ -1,14 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MyCameraActor.h"
-#include <Kismet/GameplayStatics.h>
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 AMyCameraActor::AMyCameraActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
@@ -52,12 +50,12 @@ void AMyCameraActor::SetTarget(AActor* Target)
 	}
 }
 
-void AMyCameraActor::FollowTarget(float DeltaTime)
+void AMyCameraActor::FollowTarget(const float DeltaTime)
 {
 	FVector DesiredLocation = GetActorLocation();
-	FVector TargetLocation = TargetActor->GetActorLocation();
-
-	FVector Offset = TargetLocation - GetActorLocation();
+	
+	const FVector TargetLocation = TargetActor->GetActorLocation();
+	const FVector Offset = TargetLocation - GetActorLocation();
 
 	if (FMath::Abs(Offset.X) > SafeArea.X)
 	{
